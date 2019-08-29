@@ -1883,6 +1883,8 @@ void PassManager::add(Pass *P) {
   PM->add(P);
 }
 
+//>>BLOCK(ADDOPT.03)START
+//>>Ultimately this run() method of the PassManager is called.
 /// run - Execute all of the passes scheduled for execution.  Keep track of
 /// whether any of the passes modifies the module, and if so, return true.
 bool PassManager::run(Module &M) {
@@ -1893,6 +1895,7 @@ bool PassManager::run(Module &M) {
   //llvm::errs() << PM->getPassManagerType() << "\n"; //AD:delit
   return PM->run(M);
 }
+//>>BLOCK(ADDOPT.03)END
 
 //===----------------------------------------------------------------------===//
 // PMStack implementation

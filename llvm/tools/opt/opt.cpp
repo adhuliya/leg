@@ -165,9 +165,13 @@ static cl::opt<bool>
 OptLevelO3("O3",
            cl::desc("Optimization level 3. Similar to clang -O3"));
 
+//>>BLOCK(ADDOPT.01)START
+//>>How to add your own optimization level?
+//>>Add a command line option for the opt tool.
 static cl::opt<bool>
 OptLevelO4("O4",
            cl::desc("Optimization level 4. (anshuman- for experiment)"));
+//>>BLOCK(ADDOPT.01)END
 
 static cl::opt<unsigned>
 CodeGenOptLevel("codegen-opt-level",
@@ -641,6 +645,8 @@ int main(int argc, char **argv) {
   // Create a PassManager to hold and optimize the collection of passes we are
   // about to build.
   OptCustomPassManager Passes;
+//>>BLOCK(ADDOPT.02)START
+//>>If O4 is enabled (via command line), then add custom passes.
   if (OptLevelO4.getValue()) { //AD:delit_START
     StringRef str = "domtree-ad"; //AD: or try "gvn"
     llvm::errs() << "AD: tools/opt/opt.cpp main() gvn PassInfo: "; //AD:delit
@@ -655,8 +661,9 @@ int main(int argc, char **argv) {
     // Passes.add(createBitcodeWriterPass(*OS, PreserveBitcodeUseListOrder, //AD:delit
     //                                    EmitSummaryIndex, EmitModuleHash)); //AD:delit
     Passes.run(*M); //AD:delit
-    return 22; //AD:delit
+    return 22; //>> return a unique number to check
   } //AD:delit_START END
+//>>BLOCK(ADDOPT.02)END
   bool AddOneTimeDebugifyPasses = EnableDebugify && !DebugifyEach;
 
   // Add an appropriate TargetLibraryInfo pass for the module's triple.
@@ -799,6 +806,8 @@ int main(int argc, char **argv) {
     StandardLinkOpts = false;
   }
 
+  //>>BLOCK(DUMMY.01)START
+  //>> Optimization levels
   if (OptLevelO0)
     AddOptimizationPasses(Passes, *FPasses, TM.get(), 0, 0);
 
@@ -816,6 +825,7 @@ int main(int argc, char **argv) {
 
   if (OptLevelO3)
     AddOptimizationPasses(Passes, *FPasses, TM.get(), 3, 0);
+  //>>BLOCK(DUMMY.01)END
 
   if (FPasses) {
     FPasses->doInitialization();
