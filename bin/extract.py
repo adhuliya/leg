@@ -8,24 +8,34 @@ import os
 import io
 import sys
 
-theBlock = (r"{comment}>>\s*BLOCK\s*\((?P<name>\w+)\.(?P<level>#*)(?P<seq>\d+)\)\s*START"
-            + r".*{comment}>>\s*BLOCK\s*\((?P=name)\.(?P=level)(?P=seq)\)\s*END")
+theStart = r"{comment}>>\s*BLOCK\s*\((?P<name>\w+)\.(?P<level>#*)(?P<seq>\d+)\)\s*START"
+theEnd   = r".*{comment}>>\s*BLOCK\s*\((?P=name)\.(?P=level)(?P=seq)\)\s*END"
+theBlock = theStart + r".*" + theEnd
+            
 aStart = r"{comment}>>\s*BLOCK\s*\(\w+\.#*\d+\)\s*START"
 aEnd = r"{comment}>>\s*BLOCK\s*\(\w+\.#*\d+\)\s*END"
 aStartOrEnd = r"{comment}>>\s*BLOCK\s*\(\w+\.#*\d+\)\s*(START|END)"
 
+# special comment line (full line)
 specialComment = r"^\s*{comment}>>(?P<content>.*)$"
+# standard comment line (full line)
 standardComment = r"^\s*{comment}"
 
-# Map of the filetype and the comment characters
+# Map of the filetype and the single line comment characters
+# FIXME: The system currently doesn't handle multiline comments.
 fileCommentMap: Dict[str, str] = {
   ".cpp": "//",
+  ".c": "//",
   ".s": ";",
   ".sh": "#",
   ".py": "#",
 }
 
 class Block:
+  """
+  This class represents a single block extracted
+  from the text.
+  """
   def __init__(self,
     name: str = "",
     level: int = 0,
@@ -59,18 +69,20 @@ class Block:
     state = 1 # 1 = heading
     for line in lines:
       if aStartOrEndPattern.search(line):
-        continue # ignore start and end blocks indicators
+        continue # ignore start and end block indicators
 
       if state == 3: # in the code area
+        if specialCommentPattern.search(line):
+          continue # don't add special comments to code
         self.code.append(line)
         continue
 
       m = specialCommentPattern.search(line)
-      if m and state == 1:
+      if m and state == 1: # the heading
         self.heading = m.group("content")
         state = 2
         continue
-      elif m and state == 2:
+      elif m and state == 2: # the writeup
         # writeup should immediately follow the start block indicator
         self.writeup.append(m.group("content"))
         continue
@@ -155,7 +167,7 @@ def printMarkdown(blocks: List[Block]):
   blocks.sort()
 
   # a tuple of (name, heading) used for docIndex
-  namesAndHeadings = set()
+  namesAndHeadings = []
 
   baseLevel = 2  # i.e. start from h2
   currName = ""  # current name of the block
@@ -167,7 +179,7 @@ def printMarkdown(blocks: List[Block]):
     if currName != block.name:
       firstBlock = True
       currName = block.name
-      namesAndHeadings.add((currName, block.heading))
+      namesAndHeadings.append((currName, block.heading))
 
     if firstBlock:
       docDetails.write(f"\n\n<a name='{currName}'></a>\n")
@@ -205,6 +217,9 @@ def printMarkdown(blocks: List[Block]):
 
 
 if __name__ == "__main__":
+  if sys.argv[0] != "./extract.py":
+    print("Error. Note: Run from the location of this script.", file=sys.stderr)
+    exit(1)
   blocks = processAllFiles("../llvm")
   printMarkdown(blocks)
 

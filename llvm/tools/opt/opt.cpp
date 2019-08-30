@@ -161,16 +161,25 @@ static cl::opt<bool>
 OptLevelOz("Oz",
            cl::desc("Like -Os but reduces code size further. Similar to clang -Oz"));
 
+//>>BLOCK(ADDOPT.01)START
+//>>
+//>> Now add O4 after O3 as follows,
+
+//>>BLOCK(ADDOPT.00)START
+//>>How to add your own optimization level in `opt` tool?
+//>>Lets add optimization level O4 next to the predefined O3 level.
+//>>Here we are adding a command line option -O4 exactly the
+//>>way -O3 is used.
+//>>
+//>>This is the next paragraph `hello`.
 static cl::opt<bool>
 OptLevelO3("O3",
            cl::desc("Optimization level 3. Similar to clang -O3"));
+//>>BLOCK(ADDOPT.00)END
 
-//>>BLOCK(ADDOPT.01)START
-//>>How to add your own optimization level?
-//>>Add a command line option for the opt tool.
 static cl::opt<bool>
 OptLevelO4("O4",
-           cl::desc("Optimization level 4. (anshuman- for experiment)"));
+           cl::desc("Optimization level 4. (LEG - experiment)"));
 //>>BLOCK(ADDOPT.01)END
 
 static cl::opt<unsigned>
@@ -646,23 +655,24 @@ int main(int argc, char **argv) {
   // about to build.
   OptCustomPassManager Passes;
 //>>BLOCK(ADDOPT.02)START
-//>>If O4 is enabled (via command line), then add custom passes.
-  if (OptLevelO4.getValue()) { //AD:delit_START
-    StringRef str = "domtree-ad"; //AD: or try "gvn"
-    llvm::errs() << "AD: tools/opt/opt.cpp main() gvn PassInfo: "; //AD:delit
-    llvm::errs() << Registry.getPassInfo(str) << "\n"; //AD:delit
-    addPass(Passes, Registry.getPassInfo(str)->getNormalCtor()()); //AD:delit
+//>>
+//>>Check if O4 is given as argument (via command line), and then add custom passes.
+  if (OptLevelO4.getValue()) {
+    StringRef str = "domtree-ad";
+    llvm::errs() << "AD: tools/opt/opt.cpp main() gvn PassInfo: ";
+    llvm::errs() << Registry.getPassInfo(str) << "\n";
+    addPass(Passes, Registry.getPassInfo(str)->getNormalCtor()());
     // Check that the module is well formed on completion of optimization //AD:delit
-    // if (!NoVerify && !VerifyEach) //AD:delit
-    //   Passes.add(createVerifierPass()); //AD:delit
+    // if (!NoVerify && !VerifyEach)
+    //   Passes.add(createVerifierPass());
 
-    // raw_ostream *OS = nullptr; //AD:delit
-    // OS = &Out->os(); //AD:delit
-    // Passes.add(createBitcodeWriterPass(*OS, PreserveBitcodeUseListOrder, //AD:delit
-    //                                    EmitSummaryIndex, EmitModuleHash)); //AD:delit
-    Passes.run(*M); //AD:delit
-    return 22; //>> return a unique number to check
-  } //AD:delit_START END
+    // raw_ostream *OS = nullptr;
+    // OS = &Out->os();
+    // Passes.add(createBitcodeWriterPass(*OS, PreserveBitcodeUseListOrder,
+    //                                    EmitSummaryIndex, EmitModuleHash));
+    Passes.run(*M); //>> run the pass manager
+    return 22; //>> return a unique number to confirm
+  }
 //>>BLOCK(ADDOPT.02)END
   bool AddOneTimeDebugifyPasses = EnableDebugify && !DebugifyEach;
 
@@ -714,13 +724,6 @@ int main(int argc, char **argv) {
     Passes.add(TPC);
   }
 
-  llvm::errs() << "AD: OptLevelO0: " << OptLevelO0.getValue() << "\n"; //AD:delit
-  llvm::errs() << "AD: OptLevelO1: " << OptLevelO1.getValue() << "\n"; //AD:delit
-  llvm::errs() << "AD: OptLevelO2: " << OptLevelO2.getValue() << "\n"; //AD:delit
-  llvm::errs() << "AD: OptLevelO3: " << OptLevelO3.getValue() << "\n"; //AD:delit
-  llvm::errs() << "AD: OptLevelOs: " << OptLevelOs.getValue() << "\n"; //AD:delit
-  llvm::errs() << "AD: OptLevelOz: " << OptLevelOz.getValue() << "\n"; //AD:delit
-  llvm::errs() << "AD: OptLevelO4: " << OptLevelO4.getValue() << "\n"; //AD:delit
   // Create a new optimization pass for each one specified on the command line
   for (unsigned i = 0; i < PassList.size(); ++i) {
     if (StandardLinkOpts &&
@@ -806,8 +809,6 @@ int main(int argc, char **argv) {
     StandardLinkOpts = false;
   }
 
-  //>>BLOCK(DUMMY.01)START
-  //>> Optimization levels
   if (OptLevelO0)
     AddOptimizationPasses(Passes, *FPasses, TM.get(), 0, 0);
 
@@ -825,7 +826,6 @@ int main(int argc, char **argv) {
 
   if (OptLevelO3)
     AddOptimizationPasses(Passes, *FPasses, TM.get(), 3, 0);
-  //>>BLOCK(DUMMY.01)END
 
   if (FPasses) {
     FPasses->doInitialization();
