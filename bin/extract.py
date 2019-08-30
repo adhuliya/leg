@@ -84,7 +84,10 @@ class Block:
         continue
       elif m and state == 2: # the writeup
         # writeup should immediately follow the start block indicator
-        self.writeup.append(m.group("content"))
+        if m.group("content").strip():
+          self.writeup.append(m.group("content"))
+        else:
+          self.writeup.append("\n\n")
         continue
 
       if not m:
