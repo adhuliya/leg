@@ -26,6 +26,8 @@ standardComment = r"^\s*{comment}"
 fileCommentMap: Dict[str, str] = {
   ".cpp": "//",
   ".c": "//",
+  ".h": "//",
+  ".def": "//",
   ".s": ";",
   ".sh": "#",
   ".py": "#",
@@ -87,7 +89,8 @@ class Block:
         if m.group("content").strip():
           self.writeup.append(m.group("content"))
         else:
-          self.writeup.append("\n\n")
+          self.writeup.append("\n")
+        self.writeup.append("\n")
         continue
 
       if not m:
@@ -194,7 +197,7 @@ def printMarkdown(blocks: List[Block]):
 
     docDetails.writelines(block.writeup)
 
-    docDetails.write(f"\n\n[File](file://{block.filePath})\n\n")
+    docDetails.write(f"\n\n[Source File](file://{block.filePath})\n\n")
 
     for codeLine in block.code:
       space = " " * 4
@@ -210,7 +213,7 @@ def printMarkdown(blocks: List[Block]):
   docHeading = io.StringIO()
   docHeading.write("# Clang/LLVM Notes\n")
   docHeading.write("These are automatically generated notes from the")
-  docHeading.write("source code of llvm 8.0.1.")
+  docHeading.write(" source code of Clang/LLVM 8.0.1.")
 
   print(docHeading.getvalue(), end="")
   print(docIndex.getvalue(), end="")

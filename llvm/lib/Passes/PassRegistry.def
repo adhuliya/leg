@@ -110,7 +110,14 @@ FUNCTION_ANALYSIS("aa", AAManager())
 FUNCTION_ANALYSIS("assumptions", AssumptionAnalysis())
 FUNCTION_ANALYSIS("block-freq", BlockFrequencyAnalysis())
 FUNCTION_ANALYSIS("branch-prob", BranchProbabilityAnalysis())
-FUNCTION_ANALYSIS("domtree-anshuman", DominatorTreeAnalysis())
+//>>BLOCK(HOW_TO_REGISTER_PASS_NewPM.10)START
+//>>How is a pass registered? (New PM)
+//>>All passes are manually registerd in the file `PassRegistry.def`.
+//>>Lets take an example of the `domtree` pass.
+//>>Its a function analysis pass which has to be registered using the macro
+//>>`FUNCTION_ANALYSIS` in the file `PassRegistry.def`.
+FUNCTION_ANALYSIS("domtree", DominatorTreeAnalysis())
+//>>BLOCK(HOW_TO_REGISTER_PASS_NewPM.10)END
 FUNCTION_ANALYSIS("postdomtree", PostDominatorTreeAnalysis())
 FUNCTION_ANALYSIS("demanded-bits", DemandedBitsAnalysis())
 FUNCTION_ANALYSIS("domfrontier", DominanceFrontierAnalysis())

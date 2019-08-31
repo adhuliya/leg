@@ -38,7 +38,19 @@ namespace {
 }
 
 char Hello::ID = 0;
+//>>BLOCK(HOW_TO_REGISTER_PASS_LEGACY.10)START
+//>>How is a pass registered? (legacy PM)
+//>>We create an object of the `RegisterPass` class template,
+//>>from the file defining our pass.
+//>>The template is instantiated to the `Hello` pass we want
+//>>registered here. The two arguments to the constructer
+//>>are the:
+//>>1. First: A command line argument needed to invoke the pass (`-hello` in this case)
+//>>2. Second: A short meaningful description for the users of the pass.
+//>>
+//>>The name `X` is itself not used anywhere (although the object created is).
 static RegisterPass<Hello> X("hello", "Hello World Pass");
+//>>BLOCK(HOW_TO_REGISTER_PASS_LEGACY.10)END
 
 namespace {
   // Hello2 - The second implementation with getAnalysisUsage implemented.

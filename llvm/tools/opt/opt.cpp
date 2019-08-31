@@ -161,26 +161,19 @@ static cl::opt<bool>
 OptLevelOz("Oz",
            cl::desc("Like -Os but reduces code size further. Similar to clang -Oz"));
 
-//>>BLOCK(ADDOPT.01)START
-//>>
-//>> Now add O4 after O3 as follows,
-
-//>>BLOCK(ADDOPT.00)START
+//>>BLOCK(ADDOPT_O4.01)START
 //>>How to add your own optimization level in `opt` tool?
 //>>Lets add optimization level O4 next to the predefined O3 level.
-//>>Here we are adding a command line option -O4 exactly the
-//>>way -O3 is used.
-//>>
-//>>This is the next paragraph `hello`.
+//>>Here we are adding a command line option `-O4` exactly the
+//>>way `-O3` has been defined.
 static cl::opt<bool>
 OptLevelO3("O3",
            cl::desc("Optimization level 3. Similar to clang -O3"));
-//>>BLOCK(ADDOPT.00)END
 
 static cl::opt<bool>
 OptLevelO4("O4",
            cl::desc("Optimization level 4. (LEG - experiment)"));
-//>>BLOCK(ADDOPT.01)END
+//>>BLOCK(ADDOPT_O4.01)END
 
 static cl::opt<unsigned>
 CodeGenOptLevel("codegen-opt-level",
@@ -651,12 +644,13 @@ int main(int argc, char **argv) {
                : 1;
   }
 
+//>>BLOCK(ADDOPT_O4.02)START
+//>>
+//>>Check if `-O4` is given as argument (via command line),
+//>>and then add custom passes to the `Passes` object.
   // Create a PassManager to hold and optimize the collection of passes we are
   // about to build.
   OptCustomPassManager Passes;
-//>>BLOCK(ADDOPT.02)START
-//>>
-//>>Check if O4 is given as argument (via command line), and then add custom passes.
   if (OptLevelO4.getValue()) {
     StringRef str = "domtree-ad";
     llvm::errs() << "AD: tools/opt/opt.cpp main() gvn PassInfo: ";
@@ -673,7 +667,7 @@ int main(int argc, char **argv) {
     Passes.run(*M); //>> run the pass manager
     return 22; //>> return a unique number to confirm
   }
-//>>BLOCK(ADDOPT.02)END
+//>>BLOCK(ADDOPT_O4.02)END
   bool AddOneTimeDebugifyPasses = EnableDebugify && !DebugifyEach;
 
   // Add an appropriate TargetLibraryInfo pass for the module's triple.

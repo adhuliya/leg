@@ -74,8 +74,24 @@ class Pass;
   INITIALIZE_PASS_BEGIN(PassName, Arg, Name, Cfg, Analysis)                    \
   PassName::registerOptions();
 
+//>>BLOCK(HOW_TO_REGISTER_PASS_LEGACY.40)START
+//>>
+//>>This is the definition of the `callDefaultCtor()` function.
 template <typename PassName> Pass *callDefaultCtor() { return new PassName(); }
+//>>BLOCK(HOW_TO_REGISTER_PASS_LEGACY.40)END
 
+//>>BLOCK(HOW_TO_REGISTER_PASS_LEGACY.20)START
+//>>
+//>>The constructor of `RegisterPass` calls the `PassRegistry::getPassRegistry()->registerPass()`
+//>>method to register the pass with the `PassRegistry`.
+//>>
+//>>Note that `RegisterPass` is a subclass of `PassInfo` class.
+//>>
+//>>The `RegisterPass` constructor takes four arguments:
+//>>1. `StringRef PassArg`: the command line name of the argument (like `-hello`)
+//>>2. `StringRef Name`: a short meaningful description of the pass
+//>>3. `bool CFGOnly`: ??
+//>>4. `bool is_analysis`: Is this pass just an analysis pass?
 //===---------------------------------------------------------------------------
 /// RegisterPass<t> template - This template class is used to notify the system
 /// that a Pass is available for use, and registers it into the internal
@@ -92,12 +108,27 @@ template <typename passName> struct RegisterPass : public PassInfo {
   // Register Pass using default constructor...
   RegisterPass(StringRef PassArg, StringRef Name, bool CFGOnly = false,
                bool is_analysis = false)
+  //>>BLOCK(HOW_TO_REGISTER_PASS_LEGACY.30)START
+  //>>
+  //>>Looking at the constructor definition closely,
+  //>>notice how `&passName::ID` is used to steal the address
+  //>>of the `ID` variable defined in the pass class.
+  //>>This address is used as an identifier of the analysis
+  //>>at various places in LLVM.
+  //>>
+  //>>In order for LLVM to create instances of the pass,
+  //>>`PassInfo::NormalCtor_t(callDefaultCtor<passName>)` is used,
+  //>>which effectively stores a pointer to a function that can
+  //>>return new object of the pass. `callDefaultCtor<passName>`
+  //>>is actually that function's name.
       : PassInfo(Name, PassArg, &passName::ID,
                  PassInfo::NormalCtor_t(callDefaultCtor<passName>), CFGOnly,
                  is_analysis) {
     PassRegistry::getPassRegistry()->registerPass(*this);
   }
+  //>>BLOCK(HOW_TO_REGISTER_PASS_LEGACY.30)END
 };
+//>>BLOCK(HOW_TO_REGISTER_PASS_LEGACY.20)END
 
 /// RegisterAnalysisGroup - Register a Pass as a member of an analysis _group_.
 /// Analysis groups are used to define an interface (which need not derive from

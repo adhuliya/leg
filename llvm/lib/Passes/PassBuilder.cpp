@@ -54,7 +54,12 @@
 #include "llvm/Analysis/TypeBasedAliasAnalysis.h"
 #include "llvm/CodeGen/PreISelIntrinsicLowering.h"
 #include "llvm/CodeGen/UnreachableBlockElim.h"
+//>>BLOCK(HOW_TO_REGISTER_PASS_NewPM.30)START
+//>>
+//>>Note that appropriate declarations have to be included
+//>>in `PassBuilder.cpp` for this to work.
 #include "llvm/IR/Dominators.h"
+//>>BLOCK(HOW_TO_REGISTER_PASS_NewPM.30)END
 #include "llvm/IR/IRPrintingPasses.h"
 #include "llvm/IR/PassManager.h"
 #include "llvm/IR/Verifier.h"
@@ -342,6 +347,11 @@ void PassBuilder::registerCGSCCAnalyses(CGSCCAnalysisManager &CGAM) {
     C(CGAM);
 }
 
+//>>BLOCK(HOW_TO_REGISTER_PASS_NewPM.20)START
+//>>
+//>>The `PassRegistry.def` is included at various places
+//>>in `PassBuilder.cpp` with appropriate macro definitions.
+//>>The line `FAM.registerPass...` registers the passes given in the macro.
 void PassBuilder::registerFunctionAnalyses(FunctionAnalysisManager &FAM) {
 #define FUNCTION_ANALYSIS(NAME, CREATE_PASS)                                   \
   FAM.registerPass([&] { return CREATE_PASS; });
@@ -350,6 +360,7 @@ void PassBuilder::registerFunctionAnalyses(FunctionAnalysisManager &FAM) {
   for (auto &C : FunctionAnalysisRegistrationCallbacks)
     C(FAM);
 }
+//>>BLOCK(HOW_TO_REGISTER_PASS_NewPM.20)END
 
 void PassBuilder::registerLoopAnalyses(LoopAnalysisManager &LAM) {
 #define LOOP_ANALYSIS(NAME, CREATE_PASS)                                       \
