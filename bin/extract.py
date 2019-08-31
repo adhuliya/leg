@@ -197,7 +197,8 @@ def printMarkdown(blocks: List[Block]):
 
     docDetails.writelines(block.writeup)
 
-    docDetails.write(f"\n\n[Source File](file://{block.filePath})\n\n")
+    sourceFileName = osp.basename(block.filePath)
+    docDetails.write(f"\n\n[{sourceFileName}](file://{block.filePath})\n\n")
 
     for codeLine in block.code:
       space = " " * 4
@@ -214,6 +215,8 @@ def printMarkdown(blocks: List[Block]):
   docHeading.write("# Clang/LLVM Notes\n")
   docHeading.write("These are automatically generated notes from the")
   docHeading.write(" source code of Clang/LLVM 8.0.1.")
+  docHeading.write("\n\n") # para change
+  docHeading.write("**FIXME** and **TODO** signify some remaining work")
 
   print(docHeading.getvalue(), end="")
   print(docIndex.getvalue(), end="")

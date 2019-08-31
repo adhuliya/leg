@@ -76,7 +76,7 @@ class Pass;
 
 //>>BLOCK(HOW_TO_REGISTER_PASS_LEGACY.40)START
 //>>
-//>>This is the definition of the `callDefaultCtor()` function.
+//>>Below is the definition of the `callDefaultCtor()` function.
 template <typename PassName> Pass *callDefaultCtor() { return new PassName(); }
 //>>BLOCK(HOW_TO_REGISTER_PASS_LEGACY.40)END
 

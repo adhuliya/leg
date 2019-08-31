@@ -58,6 +58,8 @@
 //>>
 //>>Note that appropriate declarations have to be included
 //>>in `PassBuilder.cpp` for this to work.
+//>>In our case, for `DominatorTreeAnalysis`
+//>>we need to include `Dominators.h`.
 #include "llvm/IR/Dominators.h"
 //>>BLOCK(HOW_TO_REGISTER_PASS_NewPM.30)END
 #include "llvm/IR/IRPrintingPasses.h"
@@ -351,7 +353,10 @@ void PassBuilder::registerCGSCCAnalyses(CGSCCAnalysisManager &CGAM) {
 //>>
 //>>The `PassRegistry.def` is included at various places
 //>>in `PassBuilder.cpp` with appropriate macro definitions.
-//>>The line `FAM.registerPass...` registers the passes given in the macro.
+//>>The line `FAM.registerPass(...` registers the passes given in the macro.
+//>>
+//>>**FIXME:** It is not clear how the `NAME` in the macro is used.
+//>>Here it can be seen that its completely thrown away.
 void PassBuilder::registerFunctionAnalyses(FunctionAnalysisManager &FAM) {
 #define FUNCTION_ANALYSIS(NAME, CREATE_PASS)                                   \
   FAM.registerPass([&] { return CREATE_PASS; });

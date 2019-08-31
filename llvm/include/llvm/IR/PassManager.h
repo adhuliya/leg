@@ -763,6 +763,13 @@ public:
     AnalysisResultLists.clear();
   }
 
+  //>>BLOCK(HOW_PASS_DEPENDENCE_IS_SPECIFIED_NEW_PM.20)START
+  //>>
+  //>>The snippet below shows the definition of the `getResult<>()` function.
+  //>>It expects that the given pass is already registered and
+  //>>runs it if its results are not cached.
+  //>>
+  //>>**TODO:** Explore how the results are actually fetched/managed?
   /// Get the result of an analysis pass for a given IR unit.
   ///
   /// Runs the analysis if a cached result is not available.
@@ -779,6 +786,7 @@ public:
 
     return static_cast<ResultModelT &>(ResultConcept).Result;
   }
+  //>>BLOCK(HOW_PASS_DEPENDENCE_IS_SPECIFIED_NEW_PM.20)END
 
   /// Get the cached result of an analysis pass for a given IR unit.
   ///

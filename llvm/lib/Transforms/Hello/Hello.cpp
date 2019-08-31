@@ -39,7 +39,7 @@ namespace {
 
 char Hello::ID = 0;
 //>>BLOCK(HOW_TO_REGISTER_PASS_LEGACY.10)START
-//>>How is a pass registered? (legacy PM)
+//>>How is a pass registered? (Legacy PM)
 //>>We create an object of the `RegisterPass` class template,
 //>>from the file defining our pass.
 //>>The template is instantiated to the `Hello` pass we want

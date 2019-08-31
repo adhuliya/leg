@@ -626,6 +626,12 @@ void GVN::ValueTable::verifyRemoved(const Value *V) const {
 //                                GVN Pass
 //===----------------------------------------------------------------------===//
 
+//>>BLOCK(HOW_PASS_DEPENDENCE_IS_SPECIFIED_NEW_PM.10)START
+//>>How is pass dependence specified? (New PM)
+//>>The new pass manager directly specifies the dependence
+//>>in the `run()` method. The call `AM.getResult<>()` is a blocking call,
+//>>that starts the given analysis if its results are not cached, and returns
+//>>the results.
 PreservedAnalyses GVN::run(Function &F, FunctionAnalysisManager &AM) {
   // FIXME: The order of evaluation of these 'getResult' calls is very
   // significant! Re-ordering these variables will cause GVN when run alone to
@@ -647,6 +653,7 @@ PreservedAnalyses GVN::run(Function &F, FunctionAnalysisManager &AM) {
   PA.preserve<TargetLibraryAnalysis>();
   return PA;
 }
+//>>BLOCK(HOW_PASS_DEPENDENCE_IS_SPECIFIED_NEW_PM.10)END
 
 #if !defined(NDEBUG) || defined(LLVM_ENABLE_DUMP)
 LLVM_DUMP_METHOD void GVN::dump(DenseMap<uint32_t, Value*>& d) const {
@@ -2564,6 +2571,11 @@ public:
         &getAnalysis<OptimizationRemarkEmitterWrapperPass>().getORE());
   }
 
+  //>>BLOCK(HOW_PASS_DEPENDENCE_IS_SPECIFIED_LEGACY.10)START
+  //>>How is pass dependence specified? (Legacy PM)
+  //>>To specify dependence, the function `getAnalysisUsage()` is overridden.
+  //>>For example, `gvn` (`llvm::gvn::GVNLegacyPass`) analysis
+  //>>specifies dependence on nine other passes as follows,
   void getAnalysisUsage(AnalysisUsage &AU) const override {
     AU.addRequired<AssumptionCacheTracker>();
     AU.addRequired<DominatorTreeWrapperPass>();
@@ -2577,6 +2589,7 @@ public:
     AU.addPreserved<TargetLibraryInfoWrapperPass>();
     AU.addRequired<OptimizationRemarkEmitterWrapperPass>();
   }
+  //>>BLOCK(HOW_PASS_DEPENDENCE_IS_SPECIFIED_LEGACY.10)END
 
 private:
   bool NoMemDepAnalysis;
@@ -2585,6 +2598,13 @@ private:
 
 char GVNLegacyPass::ID = 0;
 
+//>>BLOCK(HOW_PASS_DEPENDENCE_IS_SPECIFIED_LEGACY.20)START
+//>>
+//>>The snippet below initializes the `gvn` pass along
+//>>with its dependencies.
+//>>
+//>>* **FIXME:** Why initialize this way?
+//>>* **FIXME:** Why initialize only seven out of nine dependencies.
 INITIALIZE_PASS_BEGIN(GVNLegacyPass, "gvn", "Global Value Numbering", false, false)
 INITIALIZE_PASS_DEPENDENCY(AssumptionCacheTracker)
 INITIALIZE_PASS_DEPENDENCY(MemoryDependenceWrapperPass)
@@ -2594,6 +2614,7 @@ INITIALIZE_PASS_DEPENDENCY(AAResultsWrapperPass)
 INITIALIZE_PASS_DEPENDENCY(GlobalsAAWrapperPass)
 INITIALIZE_PASS_DEPENDENCY(OptimizationRemarkEmitterWrapperPass)
 INITIALIZE_PASS_END(GVNLegacyPass, "gvn", "Global Value Numbering", false, false)
+//>>BLOCK(HOW_PASS_DEPENDENCE_IS_SPECIFIED_LEGACY.20)END
 
 // The public interface to this file...
 FunctionPass *llvm::createGVNPass(bool NoMemDepAnalysis) {
